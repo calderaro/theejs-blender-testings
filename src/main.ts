@@ -13,10 +13,6 @@ const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
-// Add a cube at the center
-const geometry = new THREE.BoxGeometry(1, 2);
-const material = new THREE.MeshStandardMaterial({ color: 0x0077ff });
-const cube = new THREE.Mesh(geometry, material);
 
 // Load GLTF model
 let model: THREE.Group<THREE.Object3DEventMap> | null = null;
@@ -36,23 +32,6 @@ loader.load(
   }
 );
 
-// Load GLTF model
-let model2: THREE.Group<THREE.Object3DEventMap> | null = null;
-const loader2 = new GLTFLoader();
-loader.load(
-  "test1.gltf",
-  (gltf) => {
-    console.log(gltf);
-    scene.add(gltf.scene);
-
-    renderer.render(scene, camera);
-    model2 = gltf.scene;
-  },
-  undefined,
-  (error) => {
-    console.error(error);
-  }
-);
 
 // Add a light
 const light = new THREE.AmbientLight(0x404040); // soft white light
