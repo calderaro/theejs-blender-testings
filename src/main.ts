@@ -18,7 +18,7 @@ document.body.appendChild(renderer.domElement);
 let model: THREE.Group<THREE.Object3DEventMap> | null = null;
 const loader = new GLTFLoader();
 loader.load(
-  "mug.glb",
+  "char02.glb",
   (gltf) => {
     console.log(gltf);
     scene.add(gltf.scene);
@@ -47,9 +47,9 @@ camera.position.z = 10;
 function animate() {
   requestAnimationFrame(animate);
   renderer.render(scene, camera);
-  model?.rotateY(0.1);
-  model?.rotateZ(0.1);
-  model?.rotateX(0.1);
+  model?.rotateY(0.01);
+  model?.rotateZ(0.01);
+  model?.rotateX(0.01);
   
 }
 
