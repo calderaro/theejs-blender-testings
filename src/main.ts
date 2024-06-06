@@ -18,7 +18,7 @@ document.body.appendChild(renderer.domElement);
 let model: THREE.Group<THREE.Object3DEventMap> | null = null;
 const loader = new GLTFLoader();
 loader.load(
-  "char02.glb",
+  "char04.glb",
   (gltf) => {
     console.log(gltf);
     scene.add(gltf.scene);
