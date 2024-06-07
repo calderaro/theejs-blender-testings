@@ -32,6 +32,47 @@ loader.load(
   }
 );
 
+// Load GLTF model
+let sword: THREE.Group<THREE.Object3DEventMap> | null = null;
+loader.load(
+  "sword03.glb",
+  (gltf) => {
+    console.log(gltf);
+    scene.add(gltf.scene);
+
+    renderer.render(scene, camera);
+    sword = gltf.scene;
+    sword.position.x = 5;
+    sword.position.y = 2
+    sword.position.z = -3
+  },
+  undefined,
+  (error) => {
+    console.error(error);
+  }
+);
+
+// Load GLTF model
+let axe: THREE.Group<THREE.Object3DEventMap> | null = null;
+loader.load(
+  "axe01.glb",
+  (gltf) => {
+    console.log(gltf);
+    scene.add(gltf.scene);
+
+    renderer.render(scene, camera);
+    axe = gltf.scene;
+    axe.position.x = -5
+    
+  },
+  undefined,
+  (error) => {
+    console.error(error);
+  }
+);
+
+
+
 
 // Add a light
 const light = new THREE.AmbientLight(0x404040); // soft white light
@@ -50,6 +91,12 @@ function animate() {
   model?.rotateY(0.01);
   model?.rotateZ(0.01);
   model?.rotateX(0.01);
+
+  sword?.rotateY(0.01);
+  sword?.rotateZ(0.01)
+
+   axe?.rotateY(0.01);
+  axe?.rotateZ(0.01)
   
 }
 
