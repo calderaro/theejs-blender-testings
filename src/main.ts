@@ -193,7 +193,7 @@ let down = false;
 
 window.addEventListener(
   "mousedown",
-  (e) => {
+  () => {
     down = true;
   },
   false
@@ -201,7 +201,7 @@ window.addEventListener(
 
 window.addEventListener(
   "mouseup",
-  (e) => {
+  () => {
     down = false;
   },
   false
