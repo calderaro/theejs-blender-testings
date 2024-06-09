@@ -15,6 +15,7 @@ camera.castShadow = true;
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.shadowMap.enabled = true;
 document.body.appendChild(renderer.domElement);
 
 // Create the scene.
@@ -30,12 +31,20 @@ var hemisphereLight = new THREE.HemisphereLight(0xdddddd, 0x000000, 0.5);
 scene.add(hemisphereLight);
 
 const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-directionalLight.position.set(10, 30, 5);
+directionalLight.position.set(10, 100, 5);
 directionalLight.castShadow = true;
+directionalLight.shadow.mapSize.width = 8192 * 2;
+directionalLight.shadow.mapSize.height = 8192 * 2;
+directionalLight.shadow.camera.near = 1;
+directionalLight.shadow.camera.far = 400000000;
+directionalLight.shadow.radius = 2;
+directionalLight.shadow.camera.top = directionalLight.shadow.camera.right = 100;
+directionalLight.shadow.camera.bottom = directionalLight.shadow.camera.left =
+  -100;
 scene.add(directionalLight);
 
 // Add a helper to visualize the direction of the light
-const helper = new THREE.DirectionalLightHelper(directionalLight);
+const helper = new THREE.DirectionalLightHelper(directionalLight, 10);
 scene.add(helper);
 
 const pivot = new THREE.Object3D();
@@ -61,11 +70,14 @@ const loader = new GLTFLoader();
 loader.load(
   "char04.glb",
   (gltf) => {
+    gltf.scene.traverse(function (model) {
+      if (model.isObject3D) {
+        model.castShadow = true;
+      }
+    });
+
     scene.add(gltf.scene);
     model = gltf.scene;
-    // model.position.set(0, 2.78, 0);
-    // model.rotateX((Math.PI / 180) * 90);
-    // model.rotateY(Math.PI / 180 * 90)
   },
   undefined,
   (error) => {
@@ -81,9 +93,15 @@ loader.load(
     console.log(gltf);
     scene.add(gltf.scene);
 
+    gltf.scene.traverse(function (model) {
+      if (model.isObject3D) {
+        model.castShadow = true;
+      }
+    });
+
     sword = gltf.scene;
     sword.position.x = 5;
-    sword.position.y = 2;
+    sword.position.y = 8;
     sword.position.z = 6;
   },
   undefined,
@@ -92,24 +110,33 @@ loader.load(
   }
 );
 
-createFloor();
-
 // Load GLTF model
 let axe: THREE.Group<THREE.Object3DEventMap> | null = null;
 loader.load(
   "axe01.glb",
   (gltf) => {
+    gltf.scene.traverse(function (model) {
+      if (model.isObject3D) {
+        model.castShadow = true;
+      }
+    });
+
     console.log(gltf);
     scene.add(gltf.scene);
 
     axe = gltf.scene;
     axe.position.x = -5;
+    axe.position.y = 5;
   },
   undefined,
   (error) => {
     console.error(error);
   }
 );
+
+createCube();
+createFloor();
+createShadowFloor();
 
 let x = 10;
 
@@ -154,13 +181,13 @@ function animate(timestamp: number) {
     inputVelocity.applyQuaternion(quaternion);
 
     const dir = inputVelocity.clone().dot(inputVelocity);
-    console.log(dir);
 
     if (dir) {
       tempObject.position.copy(model.position);
       tempObject.lookAt(model.position.clone().add(inputVelocity));
     }
-    model.quaternion.rotateTowards(tempObject.quaternion, 0.1);
+
+    model.quaternion.rotateTowards(tempObject.quaternion, 0.25);
 
     model.position.add(inputVelocity);
     model.getWorldPosition(v);
@@ -236,11 +263,36 @@ window.addEventListener("wheel", (e) => {
 });
 
 function createFloor() {
-  var geometry = new THREE.PlaneGeometry(100000, 100000);
-  var material = new THREE.MeshToonMaterial({ color: 0x336633 });
-  var plane = new THREE.Mesh(geometry, material);
+  let geometry = new THREE.PlaneGeometry(100000, 100000);
+  let material = new THREE.MeshBasicMaterial({ color: 0x336633 });
+  let plane = new THREE.Mesh(geometry, material);
   plane.rotation.x = (-1 * Math.PI) / 2;
   plane.position.y = 0;
+  scene.add(plane);
+  // objects.push( plane );
+}
+
+function createShadowFloor() {
+  let geometry = new THREE.PlaneGeometry(100000, 100000);
+  let material = new THREE.ShadowMaterial({ color: 0x000000 });
+  let plane = new THREE.Mesh(geometry, material);
+  plane.rotation.x = (-1 * Math.PI) / 2;
+  plane.position.y = 0;
+  plane.receiveShadow = true;
+  plane.material.opacity = 0.1;
+  scene.add(plane);
+  // objects.push( plane );
+}
+
+function createCube() {
+  let geometry = new THREE.BoxGeometry(10, 10, 10);
+  let material = new THREE.MeshToonMaterial({ color: 0xff0000 });
+  let plane = new THREE.Mesh(geometry, material);
+  plane.position.y = 10;
+  plane.position.z = -20;
+
+  plane.receiveShadow = true;
+  plane.castShadow = false;
   scene.add(plane);
   // objects.push( plane );
 }
