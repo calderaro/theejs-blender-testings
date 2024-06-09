@@ -31,7 +31,7 @@ var hemisphereLight = new THREE.HemisphereLight(0xdddddd, 0x000000, 0.5);
 scene.add(hemisphereLight);
 
 const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-directionalLight.position.set(10, 100, 5);
+directionalLight.position.set(10, 100, 100);
 directionalLight.castShadow = true;
 directionalLight.shadow.mapSize.width = 8192 * 2;
 directionalLight.shadow.mapSize.height = 8192 * 2;
@@ -286,13 +286,13 @@ function createShadowFloor() {
 
 function createCube() {
   let geometry = new THREE.BoxGeometry(10, 10, 10);
-  let material = new THREE.MeshToonMaterial({ color: 0xff0000 });
+  let material = new THREE.MeshStandardMaterial({ color: 0xff0000 });
   let plane = new THREE.Mesh(geometry, material);
   plane.position.y = 10;
   plane.position.z = -20;
 
   plane.receiveShadow = true;
-  plane.castShadow = false;
+  plane.castShadow = true;
   scene.add(plane);
   // objects.push( plane );
 }
