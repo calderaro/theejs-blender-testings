@@ -9,11 +9,13 @@
     "preview": "vite preview"
   },
   "devDependencies": {
+    "@types/d3-scale": "^4.0.8",
     "@types/three": "^0.165.0",
     "typescript": "^5.2.2",
     "vite": "^5.2.0"
   },
   "dependencies": {
+    "d3-scale": "^4.0.2",
     "three": "^0.165.0"
   }
 }
