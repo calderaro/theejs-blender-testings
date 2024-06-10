@@ -137,6 +137,7 @@ loader.load(
 createCube();
 createFloor();
 createShadowFloor();
+createForest();
 
 let x = 10;
 
@@ -285,14 +286,50 @@ function createShadowFloor() {
 }
 
 function createCube() {
-  let geometry = new THREE.BoxGeometry(10, 10, 10);
+  let geometry = new THREE.BoxGeometry(1, 100, 20);
   let material = new THREE.MeshStandardMaterial({ color: 0xff0000 });
   let plane = new THREE.Mesh(geometry, material);
-  plane.position.y = 10;
+  plane.position.y = 50;
   plane.position.z = -20;
 
   plane.receiveShadow = true;
   plane.castShadow = true;
   scene.add(plane);
   // objects.push( plane );
+}
+
+function createTree(scene: THREE.Scene, name: string, x: number, y: number) {
+  // Load GLTF model
+  let obj: THREE.Group<THREE.Object3DEventMap> | null = null;
+  loader.load(
+    name,
+    (gltf) => {
+      gltf.scene.traverse(function (model) {
+        if (model.isObject3D) {
+          model.castShadow = true;
+        }
+      });
+
+      scene.add(gltf.scene);
+
+      obj = gltf.scene;
+      obj.position.x = x;
+      obj.position.z = y;
+      obj.position.y = -0.7;
+      obj.scale.addScalar(2);
+    },
+    undefined,
+    (error) => {
+      console.error(error);
+    }
+  );
+}
+
+function createForest() {
+  for (let y = 0; y <= 5; y++) {
+    for (let x = 0; x <= 5; x++) {
+      createTree(scene, "tree02.glb", x * 10, y * 10);
+      console.log("here", x, y);
+    }
+  }
 }
