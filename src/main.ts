@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { Timer } from "three/addons/misc/Timer.js";
+import Stats from "three/examples/jsm/libs/stats.module.js";
 
 const timer = new Timer();
 const keys = new Set<string>();
@@ -9,14 +10,19 @@ const camera = new THREE.PerspectiveCamera(
   75,
   window.innerWidth / window.innerHeight,
   0.1,
-  1000
+  2000
 );
 camera.castShadow = true;
 
 const renderer = new THREE.WebGLRenderer({ antialias: true });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.shadowMap.enabled = true;
+renderer.pixelRatio = window.devicePixelRatio;
+
 document.body.appendChild(renderer.domElement);
+
+const stats = new Stats();
+document.body.appendChild(stats.dom);
 
 // Create the scene.
 scene.background = new THREE.Color(0xccddff);
@@ -138,6 +144,7 @@ createCube();
 createFloor();
 createShadowFloor();
 createForest();
+loadTerrain();
 
 let x = 10;
 
@@ -164,16 +171,16 @@ function animate(timestamp: number) {
 
   if (model) {
     if (keys.has("w")) {
-      inputVelocity.z = -20 * delta;
+      inputVelocity.z = -100 * delta;
     }
     if (keys.has("s")) {
-      inputVelocity.z = 20 * delta;
+      inputVelocity.z = 100 * delta;
     }
     if (keys.has("a")) {
-      inputVelocity.x = -20 * delta;
+      inputVelocity.x = -100 * delta;
     }
     if (keys.has("d")) {
-      inputVelocity.x = 20 * delta;
+      inputVelocity.x = 100 * delta;
     }
 
     // apply camera rotation to inputVelocity
@@ -199,6 +206,7 @@ function animate(timestamp: number) {
   }
 
   renderer.render(scene, camera);
+  stats.update();
 }
 
 animate(0);
@@ -264,6 +272,7 @@ window.addEventListener("wheel", (e) => {
 });
 
 function createFloor() {
+  return;
   let geometry = new THREE.PlaneGeometry(100000, 100000);
   let material = new THREE.MeshBasicMaterial({ color: 0x336633 });
   let plane = new THREE.Mesh(geometry, material);
@@ -274,14 +283,14 @@ function createFloor() {
 }
 
 function createShadowFloor() {
-  let geometry = new THREE.PlaneGeometry(100000, 100000);
+  let geometry = new THREE.PlaneGeometry(10, 10);
   let material = new THREE.ShadowMaterial({ color: 0x000000 });
   let plane = new THREE.Mesh(geometry, material);
   plane.rotation.x = (-1 * Math.PI) / 2;
   plane.position.y = 0;
   plane.receiveShadow = true;
   plane.material.opacity = 0.1;
-  scene.add(plane);
+  pivot.add(plane);
   // objects.push( plane );
 }
 
@@ -306,7 +315,7 @@ function createTree(scene: THREE.Scene, name: string, x: number, y: number) {
     (gltf) => {
       gltf.scene.traverse(function (model) {
         if (model.isObject3D) {
-          model.castShadow = true;
+          model.castShadow = false;
         }
       });
 
@@ -315,7 +324,7 @@ function createTree(scene: THREE.Scene, name: string, x: number, y: number) {
       obj = gltf.scene;
       obj.position.x = x;
       obj.position.z = y;
-      obj.position.y = -0.7;
+      obj.position.y = 5;
       obj.scale.addScalar(2);
     },
     undefined,
@@ -326,10 +335,60 @@ function createTree(scene: THREE.Scene, name: string, x: number, y: number) {
 }
 
 function createForest() {
-  for (let y = 0; y <= 5; y++) {
-    for (let x = 0; x <= 5; x++) {
-      createTree(scene, "tree02.glb", x * 10, y * 10);
+  for (let y = 0; y <= 1; y++) {
+    for (let x = 0; x <= 1; x++) {
+      createTree(scene, "sword03.glb", x * 50, y * 50);
       console.log("here", x, y);
     }
   }
+}
+
+function loadTerrain() {
+  // Load GLTF model
+  const textureLoader = new THREE.TextureLoader();
+  let obj: THREE.Group<THREE.Object3DEventMap> | null = null;
+  loader.load(
+    "terrain01.glb",
+    (gltf) => {
+      gltf.scene.traverse(function (model) {
+        if (model.isObject3D) {
+          model.receiveShadow = false;
+        }
+      });
+
+      console.log("terrain model", gltf);
+      textureLoader.load(
+        // resource URL
+        "terrain.png",
+
+        // onLoad callback
+        function (texture) {
+          // in this example we create the material when the texture is loaded
+          const material = new THREE.MeshBasicMaterial({
+            map: texture,
+          });
+        },
+
+        // onProgress callback currently not supported
+        undefined,
+
+        // onError callback
+        function (err) {
+          console.error("An error happened.");
+        }
+      );
+
+      scene.add(gltf.scene);
+
+      obj = gltf.scene;
+      obj.position.x = 0;
+      obj.position.z = 0.5;
+      obj.position.y = -1;
+      obj.scale.addScalar(100);
+    },
+    undefined,
+    (error) => {
+      console.error(error);
+    }
+  );
 }
