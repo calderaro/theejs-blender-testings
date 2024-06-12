@@ -345,7 +345,6 @@ function createForest() {
 
 function loadTerrain() {
   // Load GLTF model
-  const textureLoader = new THREE.TextureLoader();
   let obj: THREE.Group<THREE.Object3DEventMap> | null = null;
   loader.load(
     "terrain01.glb",
@@ -355,28 +354,6 @@ function loadTerrain() {
           model.receiveShadow = false;
         }
       });
-
-      console.log("terrain model", gltf);
-      textureLoader.load(
-        // resource URL
-        "terrain.png",
-
-        // onLoad callback
-        function (texture) {
-          // in this example we create the material when the texture is loaded
-          const material = new THREE.MeshBasicMaterial({
-            map: texture,
-          });
-        },
-
-        // onProgress callback currently not supported
-        undefined,
-
-        // onError callback
-        function (err) {
-          console.error("An error happened.");
-        }
-      );
 
       scene.add(gltf.scene);
 
